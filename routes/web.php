@@ -19,10 +19,10 @@ Route::get('/', function () {
 });
 
 
-Route::get('/login',[LoginController::class,'index'])->name('login')->middleware('guest');
-Route::post('/login',[LoginController::class,'authenticate']);
+Route::get('/login', [LoginController::class, 'index'])->name('login')->middleware('guest');
+Route::post('/login', [LoginController::class, 'authenticate']);
 
-Route::get('dashboard', function() {
+Route::get('dashboard', function () {
     if (auth()->user()->mhs == 1) {
         return app('App\Http\Controllers\DashboardController')->index();
     } else if (auth()->user()->ba == 1) {
@@ -34,7 +34,7 @@ Route::get('dashboard', function() {
     } else if (auth()->user()->pa == 1) {
         return view('paDashboard');
     }
-    
+
 })->name('dashboard')->middleware('auth');
 
 
@@ -42,21 +42,25 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Route::get('product/{product}/delete',[ProductsController::class,'destroy']);
 
-Route::get('/maintenance',function(){
+Route::get('/maintenance', function () {
     return view('maintenance');
 });
-Route::get('/tes',function(){
+Route::get('/tes', function () {
     return view('tes');
 });
 
+Route::get('/mhsIrs', function () {
+    return view('mhsIrs');
+});
+
 //IRS
-Route::get('/irs',[IrsController::class,'all']) -> name('irs');
-Route::get('/irs/{id}/{email}',[IrsController::class,'index']);
+Route::get('/irs', [IrsController::class, 'all'])->name('irs');
+Route::get('/irs/{id}/{email}', [IrsController::class, 'index']);
 
 
 //KHS
-Route::get('/khs',[KhsController::class,'all']) -> name('khs');
-Route::get('/khs/{id}',[KhsController::class,'index']);
+Route::get('/khs', [KhsController::class, 'all'])->name('khs');
+Route::get('/khs/{id}', [KhsController::class, 'index']);
 
 
 //Transkrip
@@ -68,10 +72,10 @@ Route::get('m/make-irs', function () {
 })->name('transkrip');
 
 //Buat IRS
-Route::get('/buat-irs',[BuatIrsController::class,'index']) -> name('buat-irs')->middleware([RegistFirst::class]);
-Route::post('/buat-irstest',[BuatIrsController::class,'createIrs']) -> name('buat-irstest');
-Route::post('/viewirs',[BuatIrsController::class,'viewIrs']) -> name('viewirs');
-Route::post('/deleteirs',[BuatIrsController::class,'deleteIrs']) -> name('deleteirs');
+Route::get('/buat-irs', [BuatIrsController::class, 'index'])->name('buat-irs')->middleware([RegistFirst::class]);
+Route::post('/buat-irstest', [BuatIrsController::class, 'createIrs'])->name('buat-irstest');
+Route::post('/viewirs', [BuatIrsController::class, 'viewIrs'])->name('viewirs');
+Route::post('/deleteirs', [BuatIrsController::class, 'deleteIrs'])->name('deleteirs');
 
 Route::get('/ajuanIrs', [BuatIrsController::class, 'index2'])->name('ajuanIrs');
 Route::post('/irs/approve', [BuatIrsController::class, 'approve'])->name('irs.approve');
@@ -87,18 +91,18 @@ Route::get('m/registrasi', function () {
 Route::resource('/ruang', RuangController::class)->names([
     'index' => 'ruang',
 ]);
-Route::get('/plotruang',[RuangController::class,'index2'])->name('plotruang');
-Route::post('/plotruang/{id}',[RuangController::class,'editProdi']);
-Route::get('/prodi',[RuangController::class,'plotProdi']);
+Route::get('/plotruang', [RuangController::class, 'index2'])->name('plotruang');
+Route::post('/plotruang/{id}', [RuangController::class, 'editProdi']);
+Route::get('/prodi', [RuangController::class, 'plotProdi']);
 
 Route::get('/ajuanRuang', [RuangController::class, 'index3'])->name('ajuanruang');
 Route::post('/ruang/{id}/update-status', [RuangController::class, 'updateStatus'])->name('ruang.updateStatus');
 
 
 //Jadwal
-Route::get('/buatjadwal',[JadwalController::class,'index'])->name('buatjadwal');
-Route::post('/buatjadwal/{id}',[JadwalController::class,'update']);
-Route::post('/checkjadwal',[JadwalController::class,'isJadwalExist']);
+Route::get('/buatjadwal', [JadwalController::class, 'index'])->name('buatjadwal');
+Route::post('/buatjadwal/{id}', [JadwalController::class, 'update']);
+Route::post('/checkjadwal', [JadwalController::class, 'isJadwalExist']);
 
 
 Route::get('/ajuanJadwal', [JadwalController::class, 'index3'])->name('ajuanjadwal');
@@ -121,8 +125,8 @@ Route::get('k/rombel', function () {
 })->name('rombel');
 
 
-Route::get('/reviewjadwal',[JadwalController::class,'index2']);
-Route::get('/reviewjadwal/{prodi}',[JadwalController::class,'reviewJadwalProdi']);
+Route::get('/reviewjadwal', [JadwalController::class, 'index2']);
+Route::get('/reviewjadwal/{prodi}', [JadwalController::class, 'reviewJadwalProdi']);
 
 Route::get('/login', [LoginController::class, 'index'])->name('login')->middleware('guest');
 
