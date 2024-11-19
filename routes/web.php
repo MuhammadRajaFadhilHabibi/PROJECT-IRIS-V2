@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AkademikController;
 use Monolog\Registry;
 use App\Http\Middleware\RegistFirst;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\AjuanRuangController;
 use App\Http\Controllers\MatakuliahController;
 use App\Http\Controllers\BuatIrsController;
+use App\Http\Controllers\DashboardController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 Route::get('/', function () {
@@ -49,9 +51,24 @@ Route::get('/tes', function () {
     return view('tes');
 });
 
-Route::get('/mhsIrs', function () {
-    return view('mhsIrs');
+
+//mahasiswa
+Route::get('/mhsBuatIrs', function () {
+    return view('mhsBuatIrs');
 });
+
+Route::get('/mhsAkademik', function () {
+    return view('mhsAkademik');
+});
+
+Route::get('/mhsAkademik', [AkademikController::class, 'index'])->name('mhsAkademik');
+
+Route::get('/mhsDashboard', [DashboardController::class, 'index'])->name('mhsDashboard');
+
+Route::get('/mhsRegistrasi', [RegisterController::class, 'index'])->name('mhsRegistrasi');
+
+
+
 
 //IRS
 Route::get('/irs', [IrsController::class, 'all'])->name('irs');
@@ -82,9 +99,9 @@ Route::post('/irs/approve', [BuatIrsController::class, 'approve'])->name('irs.ap
 Route::post('/irs/reject', [BuatIrsController::class, 'reject'])->name('irs.reject');
 
 //Registrasi
-Route::get('m/registrasi', function () {
+Route::get('mhsRegistrasi', function () {
     return view('mhsRegistrasi');
-})->name('registration');
+})->name('mhsRegistrasi');
 
 
 //Ruang
