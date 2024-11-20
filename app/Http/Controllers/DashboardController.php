@@ -17,8 +17,8 @@ class DashboardController extends Controller
         // Access user name
         $userName = $user->name;
         $status = $user->status;
-        $ipk = Mahasiswa::where('email', $user->email)->first()->ipk;
-        $semester_berjalan = Mahasiswa::where('email', $user->email)->first()->semester_berjalan;
+        // $ipk = Mahasiswa::where('email', $user->email)->first()->ipk;
+        // $semester_berjalan = Mahasiswa::where('email', $user->email)->first()->semester_berjalan;
 
         $data = [
             'userName' => $userName,
@@ -26,7 +26,7 @@ class DashboardController extends Controller
         ];
 
         // Pass the user data to a view, or return a response
-        return view('MhsDashboard',compact('data', 'ipk', 'semester_berjalan'));
+        return view('MhsDashboard', compact('data'));
     }
     public function index2()
     {
@@ -43,7 +43,7 @@ class DashboardController extends Controller
         ];
 
         // Pass the user data to a view, or return a response
-        return view('paDashboard',compact('data'));
+        return view('paDashboard', compact('data'));
     }
     public function index3()
     {
@@ -60,7 +60,7 @@ class DashboardController extends Controller
         ];
 
         // Pass the user data to a view, or return a response
-        return view('MhsDashboard',compact('data'));
+        return view('MhsDashboard', compact('data'));
     }
     public function index4()
     {
@@ -77,6 +77,6 @@ class DashboardController extends Controller
         ];
 
         // Pass the user data to a view, or return a response
-        return view('MhsDashboard',compact('data'));
+        return view('MhsDashboard', compact('data'));
     }
 }
