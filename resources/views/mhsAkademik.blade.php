@@ -16,8 +16,7 @@
         <!-- Main Content -->
         <div class="flex-1 ml-[350px]">
             <!-- Header -->
-            <div class="flex justify-between items-center mt-8">
-                <h2 class="text-2xl font-bold">IRS</h2>
+            <div class="justify-self-end mr-4 items-center mt-8">
                 <div class="flex items-center space-x-4 mr-3">
                     <button class="relative">
                         <div class="border border-gray-300 bg-gray-300 rounded-full">
@@ -33,15 +32,18 @@
 
             <!-- Tabs -->
             <div class="mt-7 flex space-x-4 mb-4 justify-around">
-                <button class="w-[25%] bg-gray-200 hover:bg-blue-500 text-gray-700 px-4 py-2 rounded">IRS</button>
-                <button class="w-[25%] bg-gray-200 hover:bg-blue-500 text-gray-700 px-4 py-2 rounded">KHS</button>
-                <button class="w-[25%] bg-gray-200 hover:bg-blue-500 text-gray-700 px-4 py-2 rounded">Transkrip</button>
+                <button id="tab-irs"
+                    class="tab-btn w-[25%] bg-gray-200 hover:bg-blue-500 hover:text-white text-gray-700 px-4 py-2 rounded active-tab">IRS</button>
+                <button id="tab-khs"
+                    class="tab-btn w-[25%] bg-gray-200 hover:bg-blue-500 hover:text-white text-gray-700 px-4 py-2 rounded">KHS</button>
+                <button id="tab-transkrip"
+                    class="tab-btn w-[25%] bg-gray-200 hover:bg-blue-500 hover:text-white text-gray-700 px-4 py-2 rounded">Transkrip</button>
             </div>
 
             <div class="border border-gray-300 w-[98%] mb-4"></div>
 
-            <!-- Content IRS -->
-            <div class="bg-white shadow rounded-lg p-6 mr-5">
+            <!-- Content Sections -->
+            <div id="content-irs" class="content-tab bg-white shadow rounded-lg p-6 mr-5">
                 <h1 class="text-xl font-bold mb-4">Isian Rencana Semester (IRS)</h1>
                 <div>
                     <!-- Semester List -->
@@ -49,7 +51,7 @@
                         <div class="flex justify-between p-4 bg-gray-100">
                             <span>Semester 1</span>
                             <button>
-                                <img src="../pylus.svg" alt="icon plus">
+                                <img src="../pilus.svg" alt="icon plus">
                             </button>
                         </div>
                     </div>
@@ -57,7 +59,7 @@
                         <div class="flex justify-between p-4 bg-gray-100">
                             <span>Semester 2</span>
                             <button>
-                                <img src="../pylus.svg" alt="icon plus">
+                                <img src="../pilus.svg" alt="icon plus">
                             </button>
                         </div>
                     </div>
@@ -65,17 +67,94 @@
                         <div class="flex justify-between p-4 bg-gray-100">
                             <span>Semester 3</span>
                             <button>
-                                <img src="../pylus.svg" alt="icon plus">
+                                <img src="../pilus.svg" alt="icon plus">
                             </button>
                         </div>
                     </div>
 
                     <!-- Button -->
-                    <button class="bg-red-500 text-white px-4 py-2 rounded">Buat Rencana Studi</button>
+                    <a href="{{ route('mhsBuatIrs') }}">
+                        <button class="bg-red-500 text-white px-4 py-2 rounded">Buat Rencana Studi</button>
+                    </a>
                 </div>
             </div>
+
+            <div id="content-khs" class="content-tab bg-white shadow rounded-lg p-6 mr-5 hidden">
+                <h1 class="text-xl font-bold mb-4">Kartu Hasil Studi (KHS)</h1>
+                <div>
+                    <!-- Semester List -->
+                    <div class="border rounded-lg mb-4">
+                        <div class="flex justify-between p-4 bg-gray-100">
+                            <span>Semester 1</span>
+                            <button>
+                                <img src="../pilus.svg" alt="icon plus">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="border rounded-lg mb-4">
+                        <div class="flex justify-between p-4 bg-gray-100">
+                            <span>Semester 2</span>
+                            <button>
+                                <img src="../pilus.svg" alt="icon plus">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="border rounded-lg mb-4">
+                        <div class="flex justify-between p-4 bg-gray-100">
+                            <span>Semester 3</span>
+                            <button>
+                                <img src="../pilus.svg" alt="icon plus">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div id="content-transkrip" class="content-tab bg-white shadow rounded-lg p-6 mr-5 hidden">
+                <h1 class="text-xl font-bold mb-4">Transkrip</h1>
+            </div>
         </div>
-    </div>
+
+        <!-- JavaScript -->
+        <script>
+            // Select tab buttons and content sections
+            const tabs = document.querySelectorAll('.tab-btn');
+            const contents = document.querySelectorAll('.content-tab');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active-tab class from all tabs
+                    tabs.forEach(btn => btn.classList.remove('active-tab'));
+
+                    // Add active-tab class to the selected tab
+                    tab.classList.add('active-tab');
+
+                    // Hide all content sections
+                    contents.forEach(content => content.classList.add('hidden'));
+
+                    // Show the selected content section
+                    const targetId = `content-${tab.id.split('-')[1]}`;
+                    document.getElementById(targetId).classList.remove('hidden');
+                });
+            });
+        </script>
+
+        <!-- CSS -->
+        <style>
+            /* Active tab styling */
+            .active-tab {
+                background-color: #3b82f6;
+                /* Blue color */
+                color: white;
+            }
+
+            /* Hover styling */
+            .tab-btn:hover {
+                background-color: #2563eb;
+                /* Darker blue */
+                color: white;
+            }
+        </style>
 </body>
 
 </html>
