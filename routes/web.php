@@ -61,6 +61,8 @@ Route::get('/mhsAkademik', function () {
     return view('mhsAkademik');
 });
 
+Route::get('/mhsBuatIrs', [BuatIrsController::class, 'index'])->name('mhsBuatIrs');
+
 Route::get('/mhsAkademik', [AkademikController::class, 'index'])->name('mhsAkademik');
 
 Route::get('/mhsDashboard', [DashboardController::class, 'index'])->name('mhsDashboard');
