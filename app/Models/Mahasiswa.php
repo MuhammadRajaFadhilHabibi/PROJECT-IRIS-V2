@@ -33,4 +33,9 @@ class Mahasiswa extends Model
     public function irs(){
         return $this->hasOne(IRS::class, 'mahasiswa_id');
     }
+
+    public function dosen()
+    {
+        return $this->belongsTo(Dosen::class, 'nip', 'nip'); // asumsi 'nip' adalah kolom foreign key
+    }
 }

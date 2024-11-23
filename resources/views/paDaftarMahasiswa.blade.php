@@ -99,7 +99,7 @@
                                     <td class="py-3 px-4 text-center border">{{ $loop->iteration }}</td>
                                     <td class="py-3 px-4 border">{{ $mahasiswa->nim }}</td>
                                     <td class="py-3 px-4 border">
-                                        <a href="{{ route('paHalamanIRS', ['id' => $mahasiswa->id]) }}" class="hover:underline">
+                                        <a href="{{ route('paAjuanIRS', ['id' => $mahasiswa->id]) }}" class="hover:underline">
                                             {{ $mahasiswa->nama }}
                                         </a>
                                     </td>
@@ -138,52 +138,117 @@
     </div>
 </div>
 
+<!-- Tanda Tangan IRS -->
+
+{{-- Create Modal --}}
+                <div id="crud-modal" tabindex="-1" class="hidden fixed inset-0 z-50 justify-center items-center w-full h-full">
+                    <div class="relative p-4 w-full max-w-md max-h-full">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                            <div class="flex items-center justify-between p-4 border-b rounded-t dark:border-gray-600">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Buat Mata Kuliah</h3>
+                                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
+                                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+                            <form class="p-4" action="{{ route('matakuliah.store') }}" method="POST">
+                                @csrf
+                                <div class="grid gap-4 mb-4 grid-cols-2">
+                                    <div class="col-span-1">
+                                        <label for="kodemk" class="block text-sm font-medium text-gray-900 dark:text-white">Kode MK</label>
+                                        <input type="text" name="kodemk" id="kodemk" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                    </div>
+                                    <div class="col-span-1">
+                                        <label for="nama" class="block text-sm font-medium text-gray-900 dark:text-white">Nama MK</label>
+                                        <input type="text" name="nama" id="nama" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                    </div>
+                                    <div class="col-span-1">
+                                        <label for="plotsemester" class="block text-sm font-medium text-gray-900 dark:text-white">Plot Semester</label>
+                                        <select id="plotsemester" name="plotsemester" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                            <option value="6">6</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-1">
+                                        <label for="sks" class="block text-sm font-medium text-gray-900 dark:text-white">SKS</label>
+                                        <input type="number" name="sks" id="sks" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                    </div>
+                                    <div class="col-span-1">
+                                        <label for="sifat" class="block text-sm font-medium text-gray-900 dark:text-white">Sifat</label>
+                                        <select id="sifat" name="sifat" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                            <option value="W">Wajib</option>
+                                            <option value="P">Pilihan</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-1">
+                                        <label for="jumlah_kelas" class="block text-sm font-medium text-gray-900 dark:text-white">Jumlah Kelas</label>
+                                        <input type="number" name="jumlah_kelas" id="jumlah_kelas" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                    </div>
+                                </div>
+                                <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5">Tambah Mata Kuliah</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
 {{-- Cek Status --}}
 <script>
     function checkStatuses() {
-    const rows = document.querySelectorAll('table tbody tr'); // Ambil semua baris tabel
-    let allApproved = true; // Awalnya anggap semua status disetujui
+        const rows = document.querySelectorAll('table tbody tr'); // Ambil semua baris tabel
+        let allApproved = true; // Awalnya anggap semua status disetujui
 
-    rows.forEach(row => {
-        const $mahasiswa->irs->status = row.cells[5].innerText.trim(){ // Ambil teks kolom Status
-            if ($mahasiswa->irs->status !== "Disetujui") {
-                allApproved = false; // Kalau ada yang belum disetujui, ubah ke false
+        rows.forEach(row => {
+            const $mahasiswa->irs->status = row.cells[5].innerText.trim(){ // Ambil teks kolom Status
+                if ($mahasiswa->irs->status !== "Disetujui") {
+                    allApproved = false; // Kalau ada yang belum disetujui, ubah ke false
+                }
             }
+        });
+
+        const button = document.getElementById('tandaTangan'); // Tombolnya
+        button.setAttribute('data-all-approved', allApproved); // Set atribut data-all-approved
+
+
+        if (allApproved) {
+            button.disabled = false; // Kalau semua disetujui, aktifkan tombol
+        } else {
+            button.disabled = true; // Kalau tidak, nonaktifkan tombol
         }
-    });
-
-    const button = document.getElementById('tandaTanganiButton'); // Tombolnya
-    if (allApproved) {
-        button.disabled = false; // Kalau semua disetujui, aktifkan tombol
-    } else {
-        button.disabled = true; // Kalau tidak, nonaktifkan tombol
-        button.onclick = () => alert("IRS mahasiswa harus disetujui terlebih dahulu");
     }
-}
 
-// Panggil fungsi ini saat halaman pertama kali dimuat
-window.onload = checkStatuses;
-
+    // Panggil fungsi ini saat halaman pertama kali dimuat
+    window.onload = checkStatuses;
 </script>
 
 <script>
-    document.getElementById('tandaTangan').addEventListener('click', function() {
-        const allApproved = this.getAttribute('data-all-approved') === 'true';
+    document.getElementById('tandaTangan').addEventListener('click', function () {
+        const allApproved = this.getAttribute('data-all-approved') === 'true'; // Cek status
 
-        // Gantikan dengan URL ke halaman daftar mahasiswa
-        var routePaDaftarMahasiswa = "{{ route('daftarmahasiswa') }}";  // Ganti dengan nama route daftar mahasiswa
-
-        if (!allApproved) {
-            // Jika ada mahasiswa yang belum disetujui, tampilkan SweetAlert
+        if (allApproved) {
+            // Tampilkan modal (data-modal-target dan data-modal-toggle sudah otomatis menangani ini)
+            const modalTarget = this.getAttribute('data-modal-target');
+            const modalToggle = this.getAttribute('data-modal-toggle');
+            if (modalTarget && modalToggle) {
+                document.getElementById(modalTarget).classList.add('show');
+            }
+        } else {
+            // Tampilkan SweetAlert jika ada yang belum disetujui
             Swal.fire({
                 icon: "error",
                 title: "Gagal Menandatangani",
                 text: "Mohon periksa dan setujui seluruh IRS sebelum menandatangani secara digital",
-                footer: '<a href="' + routePaDaftarMahasiswa + '">Setujui IRS</a>'
+                footer: '<a href="{{ route('daftarmahasiswa') }}">Setujui IRS</a>'
             });
         }
     });
 </script>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () ){

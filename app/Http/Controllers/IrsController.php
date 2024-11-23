@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Matakuliah;
 use App\Models\Mahasiswa;
+use App\Models\irs;
 
 class IrsController extends Controller
 {
@@ -63,28 +64,19 @@ class IrsController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        // Menemukan data IRS berdasarkan ID mahasiswa
-        $irs = Irs::where('mahasiswa_id', $id)->first();
+        $mahasiswa = Mahasiswa::findOrFail($id);
 
-        if (!$irs) {
-            return redirect()->back()->with('error', 'IRS tidak ditemukan');
-        }
-
-        // Memperbarui status dan komentar IRS
-        $irs->status = $request->status;
-        $irs->komentar = $request->komentar;
-        $irs->save();
-
-        // Update status mahasiswa jika IRS disetujui
-        if ($request->status == 'disetujui') {
-            $mahasiswa = Mahasiswa::find($id);
-            $mahasiswa->status = 'Disetujui'; // Update status mahasiswa
-            $mahasiswa->save();
-        }
-
-        // Redirect kembali dengan pesan sukses
-        return redirect()->route('daftar-mahasiswa')->with('success', 'Status IRS berhasil diperbarui');
+        // Debug log untuk memastikan data diterima
+        \Log::info('Data yang diterima:', $request->all());
+    
+        // Perbarui status dan komentar di database
+        $mahasiswa->irs_status = $request->input('status');
+        $mahasiswa->save();
+    
+        return redirect()->route('daftarmahasiswa')->with('success', 'Status dan komentar berhasil diperbarui!');
+    
     }
+
 
     public function saveStatus(Request $request)
     {
@@ -126,6 +118,23 @@ class IrsController extends Controller
         // Redirect ke halaman daftar mahasiswa dengan pesan sukses
         return redirect()->route('daftarmahasiswa')->with('success', 'Status IRS berhasil diperbarui!');
     }
+
+    public function resetStatus($id)
+    {
+        $mahasiswa = Mahasiswa::find($id);
+
+        if (!$mahasiswa) {
+            return redirect()->back()->with('error', 'Mahasiswa tidak ditemukan.');
+        }
+
+        // Reset status dan komentar
+        $mahasiswa->status = null; // Reset status ke default (misalnya null)
+        $mahasiswa->komentar = null; // Reset komentar
+        $mahasiswa->save();
+
+        return redirect()->route('daftar-mahasiswa')->with('success', 'Status berhasil direset.');
+    }
+
 
     public function indexMahasiswa()
     {
