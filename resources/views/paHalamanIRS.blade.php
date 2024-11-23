@@ -61,24 +61,24 @@
                         {{ $mahasiswa->ipk }}
                     </div>
                 </div>
-                <form id="irs-form" method="POST" action="{{ route('irs.save') }}">
+                <form action="{{ route('update-status', $mahasiswa->id) }}" id="irs-form" method="POST">
                     @csrf
+                    @method('PUT')
                     <input type="hidden" name="id" value="{{ $mahasiswa->id }}">
                     <div class="flex justify-between border-b py-2">
                         <label for="status" class="text-gray-700 text-bold">Status IRS</label>
                         <select class="form-control w-2/3 p-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" id="status" name="status" required {{ $mahasiswa->irs_status != 'Pending' ? 'disabled' : '' }}>
-                            <option value="Pending" {{ $mahasiswa->irs_status == 'Pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="Disetujui" {{ $mahasiswa->irs_status == 'Disetujui' ? 'selected' : '' }}>Disetujui</option>
-                            <option value="Ditolak" {{ $mahasiswa->irs_status == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
+                            <option value="Pending" {{ old('status', $mahasiswa->irs_status) == 'Pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="Disetujui" {{ old('status', $mahasiswa->irs_status) == 'Disetujui' ? 'selected' : '' }}>Disetujui</option>
+                            <option value="Ditolak" {{ old('status', $mahasiswa->irs_status) == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
                         </select>
                     </div>
                     <div class="flex justify-between border-b py-2">
                         <label class="text-gray-700" id="komentar" name="komentar">Komentar</label>
-                        <textarea class="w-2/3 p-1 border rounded-md focus:outline-none focus:ring focus:ring-blue-300 shadow-sm" id="komentarText" placeholder="Komentar"></textarea>
-                    </div>
+                        <textarea class="w-2/3 p-1 border rounded-md focus:outline-none focus:ring focus:ring-blue-300 shadow-sm" id="komentarText" name="komentar" placeholder="Komentar">{{ old('komentar', $mahasiswa->komentar) }}</textarea>                    </div>
                     <div class="flex justify-end items-center space-x-2 border-b py-2">
-                        <button type="button" class="btn btn-primary mt-4 bg-yellow-500 text-white py-1 px-4 rounded-lg" id="resetButton">Reset</button>
-                        <button type="button" class="btn btn-primary mt-4 bg-blue-500 text-white py-1 px-4 rounded-lg" id="saveIRS">Save</button>
+                        <button type="button" href="{{ route('reset-status', $mahasiswa->id) }}" class="btn btn-primary mt-4 bg-yellow-500 text-white py-1 px-4 rounded-lg" id="resetButton">Reset</button>
+                        <button type="submit" class="btn btn-primary mt-4 bg-blue-500 text-white py-1 px-4 rounded-lg" id="saveIRS">Save</button>
                     </div>
                 </form>
             </div>
@@ -201,6 +201,12 @@
         document.getElementById('saveIRS').addEventListener('click', function () {
             // Ambil elemen form
             const irsForm = document.getElementById('irs-form');
+            event.preventDefault();
+
+            // Ambil nilai terbaru dari dropdown dan textarea
+            const statusValue = document.getElementById('status').value;
+            const komentarValue = document.getElementById('komentarText').value;
+
 
             // Tampilkan SweetAlert sebelum submit
             Swal.fire({
@@ -215,7 +221,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Submit form jika user menekan tombol "Ya"
-                    irsForm.submit();
+                    document.getElementById('irs-form').submit();
                 }
             });
         });
@@ -223,23 +229,22 @@
 
 <script>
     document.getElementById('resetButton').addEventListener('click', function() {
-        // Mengosongkan textarea komentar
-        const komentarText = document.getElementById('komentarText');
-        komentarText.value = ''; // Kosongkan textarea
-
-        // Mengaktifkan kembali dropdown
+        // Aktifkan dropdown status
         const statusDropdown = document.getElementById('status');
-        statusDropdown.disabled = false; // Pastikan dropdown bisa dipilih
-    });
+        statusDropdown.disabled = false;
+        document.getElementById('status').value = 'Pending';
 
-    document.getElementById('saveIRS').addEventListener('click', function() {
-        // Simulasi penyimpanan data
-        // Di sini Anda harus menambahkan logika untuk menyimpan data ke server
-        console.log("Data disimpan");
+        // Kosongkan komentar
+        document.getElementById('komentarText').value = '';
 
-        // Nonaktifkan dropdown setelah disimpan
-        const statusDropdown = document.getElementById('status');
-        statusDropdown.disabled = true; // Nonaktifkan dropdown
+        // Tampilkan alert menggunakan SweetAlert
+        Swal.fire({
+            title: 'Reset Berhasil!',
+            text: 'Status dan komentar telah direset.',
+            icon: 'success',
+            confirmButtonColor: "#3085d6",
+            confirmButtonText: 'OK'
+        });
     });
 </script>
 

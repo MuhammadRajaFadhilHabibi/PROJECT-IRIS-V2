@@ -162,6 +162,10 @@ Route::get('/daftarmahasiswa', function () {
     return view('paDaftarMahasiswa'); // Ganti dengan nama view yang sesuai
 })->name('paDaftarMahasiswa');
 
+Route::get('/ajuanIRS', function () {
+    return view('paAjuanIRS'); // Ganti dengan nama view yang sesuai
+})->name('paAjuanIRS');
+
 // Upload Tanda Tangan IRS
 Route::post('/upload-irs', function (Request $request) {
     foreach ($request->file('file') as $file) {
@@ -195,6 +199,9 @@ Route::get('/daftarmahasiswa', function() {
     return view('paDaftarMahasiswa', compact('allApproved'));
 });
 
+Route::put('/update-status/{id}', [IrsController::class, 'updateStatus'])->name('update-status');
+Route::get('/reset-status/{id}', [IrsController::class, 'resetStatus'])->name('reset-status');
+
 
 // Route::get('/daftarmahasiswa', [DaftarMahasiswaController::class, 'index'])->name('daftarmahasiswa');
 
@@ -221,5 +228,8 @@ Route::delete('/pembuatan-ruang/{id}', [RuangController::class, 'destroyruang'])
 
 Route::post('/ruang', [RuangController::class, 'store'])->name('ruang.store');
 
+// Dashboard PA
+use App\Http\Controllers\MahasiswaController;
 
+Route::get('/mahasiswa', [MahasiswaController::class, 'index']);
 
