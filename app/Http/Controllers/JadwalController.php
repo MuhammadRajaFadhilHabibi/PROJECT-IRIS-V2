@@ -64,13 +64,16 @@ class JadwalController extends Controller
             5 => 'Jumat',
         ];
         
-        foreach($data as $d){
-            $d->matakuliah = Matakuliah::where('kodemk', $d->kodemk)->first()->nama;
-            $d->sks = Matakuliah::where('kodemk', $d->kodemk)->first()->sks;
+        foreach($data as $d) {
+            $matakuliah = Matakuliah::where('kodemk', $d->kodemk)->first();
+            $d->matakuliah = $matakuliah->nama;
+            $d->sks = $matakuliah->sks;
+            $d->plotsemester = $matakuliah->plotsemester; 
             $d->jammulai = $jamstart[$d->jammulai];
             $d->jamselesai = $jamend[$d->jamselesai];
             $d->hari = $day[$d->hari];
         }
+        
         //and prodi = Informatika
         $data->belumcount = $data->where('status', 'Belum Dibuat')->count();
         $dataruang = Ruang::where('status', 'Disetujui')->where('prodi', $user->prodi)->get();
@@ -129,14 +132,16 @@ class JadwalController extends Controller
             5 => 'Jumat',
         ];
         
-        foreach($data as $d){
-            $d->matakuliah = Matakuliah::where('kodemk', $d->kodemk)->first()->nama;
-            $d->sks = Matakuliah::where('kodemk', $d->kodemk)->first()->sks;
+        foreach($data as $d) {
+            $matakuliah = Matakuliah::where('kodemk', $d->kodemk)->first();
+            $d->matakuliah = $matakuliah->nama;
+            $d->sks = $matakuliah->sks;
+            $d->plotsemester = $matakuliah->plotsemester; // Tambahkan plotsemester
             $d->jammulai = $jamstart[$d->jammulai];
             $d->jamselesai = $jamend[$d->jamselesai];
             $d->hari = $day[$d->hari];
-            $d->belumDibuatCount = $data->where('status', 'Belum Dibuat')->count();
         }
+        
         //and prodi = Informatika
         return view('kpReviewJadwal', compact('data'));
     }
@@ -304,13 +309,16 @@ class JadwalController extends Controller
            5 => 'Jumat',
        ];
        
-       foreach($data as $d){
-           $d->matakuliah = Matakuliah::where('kodemk', $d->kodemk)->first()->nama;
-           $d->sks = Matakuliah::where('kodemk', $d->kodemk)->first()->sks;
-           $d->jammulai = $jamstart[$d->jammulai];
-           $d->jamselesai = $jamend[$d->jamselesai];
-           $d->hari = $day[$d->hari];
-       }
+       foreach($data as $d) {
+        $matakuliah = Matakuliah::where('kodemk', $d->kodemk)->first();
+        $d->matakuliah = $matakuliah->nama;
+        $d->sks = $matakuliah->sks;
+        $d->plotsemester = $matakuliah->plotsemester;
+        $d->jammulai = $jamstart[$d->jammulai];
+        $d->jamselesai = $jamend[$d->jamselesai];
+        $d->hari = $day[$d->hari];
+    }
+    
        //and prodi = Informatika
        return view('kpReviewJadwal', compact('data'));
    }
