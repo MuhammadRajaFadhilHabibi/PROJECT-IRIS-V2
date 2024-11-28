@@ -51,15 +51,25 @@ class IrsController extends Controller
     public function show($id)
     {
         $mahasiswa = Mahasiswa::find($id); // Mengambil data mahasiswa berdasarkan ID
+
+        if (!$mahasiswa) {
+            // Jika data mahasiswa tidak ditemukan, tampilkan pesan error atau redirect
+            return redirect()->back()->with('error', 'Mahasiswa tidak ditemukan.');
+        }
+
         $data = MataKuliah::all(); // Mengambil semua data mata kuliah
         $status = $mahasiswa->status; // Misalkan kolom status IRS ada di tabel mahasiswa
         $komentar = $mahasiswa->komentar; // Ambil komentar yang sudah tersimpan
-        
-        return view('paHalamanIRS', compact('mahasiswa', 'data', 'status', 'komentar'));
-        return view('paHalamanIRS', compact('mahasiswa', 'status'));
+        $prodi = $mahasiswa->prodi;
+        $semester_berjalan = $mahasiswa->semester_berjalan;
+        $angkatan = $mahasiswa->angkatan;
+        $nama = $mahasiswa->nama;
+        $nim = $mahasiswa->nim;
 
-        $allApproved = Mahasiswa::where('irs_status', 'Disetujui')->get();
-        return view('paDaftarMahasiswa', compact('allApproved'));
+        $mahasiswa = Mahasiswa::all();
+
+        return view('paAjuanIRS', compact('mahasiswa', 'nama', 'nim', 'prodi', 'semester_berjalan', 'angkatan'));
+        return view('paDaftarMahasiswa', compact('mahasiswa'));
     }
 
     public function updateStatus(Request $request, $id)

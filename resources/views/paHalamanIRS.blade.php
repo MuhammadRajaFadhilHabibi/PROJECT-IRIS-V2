@@ -113,13 +113,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($data as $matakuliah)
+                        @foreach ($matakuliah as $item)
                             <tr tr class="border-b {{ $loop->iteration % 2 == 0 ? 'bg-[#ECEFF6]' : '' }}">
                                 <td class="py-3 px-4 text-center border">{{ $loop->iteration }}</td>
-                                <td class="py-3 px-4 border">{{ $matakuliah->kodemk }}</td>
-                                <td class="py-3 px-4 border">{{ $matakuliah->nama }}</td>
-                                <td class="py-3 px-4 text-center border">{{ $matakuliah->sks }}</td>
-                                <td class="py-3 px-4 text-center border">{{ $matakuliah->plotsemester }}</td>
+                                <td class="py-3 px-4 border">{{ $item->kodemk }}</td>
+                                <td class="py-3 px-4 border">{{ $item->nama }}</td>
+                                <td class="py-3 px-4 text-center border">{{ $item->sks }}</td>
+                                <td class="py-3 px-4 text-center border">{{ $item->plotsemester }}</td>
                                 <td class="py-3 px-4 text-center border"></td>
                             </tr>
                         @endforeach
@@ -127,7 +127,7 @@
                     </tbody>
                     <tfoot>
                         @php
-                            $totalSKS = $data->sum('sks');
+                            $totalSKS = $matakuliah->sum('sks');
                         @endphp
                         <tr style="background-color: #ECEFF6;">
                             <td colspan="6" class="py-3 px-4 text-center font-semibold border">Total SKS: {{ $totalSKS }}</td>
