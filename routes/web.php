@@ -14,8 +14,10 @@ use App\Http\Controllers\AjuanRuangController;
 use App\Http\Controllers\MatakuliahController;
 use App\Http\Controllers\BuatIrsController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DigitalSignatureController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 use App\Models\Mahasiswa;
+use App\Models\Matakuliah;
 use Illuminate\Http\Request;
 
 Route::get('/', function () {
@@ -135,24 +137,25 @@ Route::post('/jadwal/approve', [JadwalController::class, 'approve'])->name('jadw
 Route::post('/jadwal/reject', [JadwalController::class, 'reject'])->name('jadwal.reject');
 
 //Perwalian
-Route::get('p/daftarmahasiswa', function () {
-    $data = Mahasiswa::all(); // Ambil semua data mahasiswa dari model
-    return view('paDaftarMahasiswa', compact('data')); // Kirim data ke view
-})->name('daftarmahasiswa');
+// Route untuk menampilkan daftar mahasiswa (dengan controller IrsController)
+Route::get('/daftarmahasiswa', [IrsController::class, 'indexMahasiswa'])->name('daftarmahasiswa');
 
-Route::get('p/irs/{id}', function ($id) {
+// Route untuk halaman IRS
+Route::get('p/halamanIRS/{id}', function ($id) {
     // Ambil data mahasiswa berdasarkan ID
     $mahasiswa = Mahasiswa::find($id);
 
+    $matakuliah = Matakuliah::all();
+
     // Kirim data mahasiswa ke halaman IRS
-    return view('paHalamanIRS', compact('mahasiswa'));
+    return view('paHalamanIRS', compact('mahasiswa', 'matakuliah'));
 })->name('halamanIRS');
 
 // Daftar Mahasiswa PA
 Route::get('/paHalamanIRS/{id}', [IrsController::class, 'show'])->name('paHalamanIRS');
 Route::post('/irs/save', [IrsController::class, 'save'])->name('irs.save');
 
-
+// Route untuk mengubah status
 Route::post('p/irs/{id}/approve', function ($id) {
     $mahasiswa = Mahasiswa::findOrFail($id);
     if ($mahasiswa->jadwal) {
@@ -162,23 +165,16 @@ Route::post('p/irs/{id}/approve', function ($id) {
     return redirect()->route('daftarmahasiswa');
 });
 
-Route::get('/daftarmahasiswa', function () {
-    return view('paDaftarMahasiswa'); // Ganti dengan nama view yang sesuai
-})->name('paDaftarMahasiswa');
-
-Route::get('/ajuanIRS', function () {
-    return view('paAjuanIRS'); // Ganti dengan nama view yang sesuai
-})->name('paAjuanIRS');
-
-// Upload Tanda Tangan IRS
+// Route untuk upload Tanda Tangan IRS
 Route::post('/upload-irs', function (Request $request) {
     foreach ($request->file('file') as $file) {
-        $filename = $file->getClientOriginalName(); // Ambil nama asli file
-        $file->storeAs('irs_files', $filename, 'public'); // Simpan di folder public/irs_files
+        $filename = $file->getClientOriginalName();
+        $file->storeAs('irs_files', $filename, 'public');
     }
     return response()->json(['success' => true]);
 });
 
+// Route untuk melihat IRS
 Route::get('/view-irs/{name}', function ($name) {
     $filePath = storage_path("app/public/irs_files/{$name}.pdf");
 
@@ -189,25 +185,15 @@ Route::get('/view-irs/{name}', function ($name) {
     abort(404, 'File tidak ditemukan');
 });
 
+// Route lainnya untuk IRS
 Route::get('/irs/{id}', [IrsController::class, 'show'])->name('irs.show');
 Route::post('irs/update-status/{id}', [IrsController::class, 'updateStatus'])->name('update-status-irs');
 Route::get('/paHalamanIRS/{id}', [IrsController::class, 'show'])->name('paHalamanIRS');
 
 // Menyetujui/Menolak IRS
-Route::post('/irs/save', [IrsController::class, 'save'])->name('irs.save');
-
-Route::get('/p/daftarmahasiswa', [IrsController::class, 'indexMahasiswa'])->name('daftarmahasiswa');
-
-Route::get('/daftarmahasiswa', function() {
-    $allApproved = Mahasiswa::where('irs_status', 'Disetujui')->get();
-    return view('paDaftarMahasiswa', compact('allApproved'));
-});
-
 Route::put('/update-status/{id}', [IrsController::class, 'updateStatus'])->name('update-status');
 Route::get('/reset-status/{id}', [IrsController::class, 'resetStatus'])->name('reset-status');
 
-
-// Route::get('/daftarmahasiswa', [DaftarMahasiswaController::class, 'index'])->name('daftarmahasiswa');
 
 Route::resource('/matakuliah', MatakuliahController::class)->names([
     'index' => 'matakuliah',
@@ -233,7 +219,14 @@ Route::delete('/pembuatan-ruang/{id}', [RuangController::class, 'destroyruang'])
 Route::post('/ruang', [RuangController::class, 'store'])->name('ruang.store');
 
 // Dashboard PA
-use App\Http\Controllers\MahasiswaController;
 
-// Route::get('/mahasiswa', [MahasiswaController::class, 'index']);
 
+// Ajuan PA
+Route::get('/paAjuanIRS', [IrsController::class, 'getMahasiswa'])->name('paAjuanIRS');
+Route::get('/paAjuanIRS/{id}', [IRSController::class, 'show'])->name('paAjuanIRS');
+Route::get('/mahasiswa/{id}', [IrsController::class, 'show'])->name('mahasiswa.show');
+
+
+// Route digital signature
+Route::get('/digital-signature/{irs_id}/generate', [DigitalSignatureController::class, 'generate']);
+Route::post('/digital-signature/verify', [DigitalSignatureController::class, 'verify']); // route untuk verifikasi

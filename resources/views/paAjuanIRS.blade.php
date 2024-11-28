@@ -1,6 +1,6 @@
 @extends('header')
 
-@section('title', 'Daftar Persetujuan')
+@section('title', 'Ajuan IRS')
 
 @section('page')
 <head>
@@ -39,16 +39,18 @@
 
     {{-- Main Content --}}
     <div id="main-content" class="my-5 bg-white shadow-md rounded-lg overflow-hidden">
+    @foreach ($mahasiswa as $m)
         <aside class="w-full">
             <div class="px-6 flex items-center bg-gray-100 p-4 rounded-lg shadow">   
                 <img src="{{ asset('alip.jpg') }}" alt="Profile Image" class="w-24 h-24 rounded-full object-cover mb-2">
                 <div class="flex flex-col px-6 ">
-                    <h2 class="font-sans text-lg font-bold">Nama</h2>
-                    <p>NIM. </p>
+                    <h2 class="font-sans text-lg font-bold">{{ $m->nama }}</h2>
+                    <p>NIM. {{ $m->nim }}</p>
                     <p>Fakultas </p>
-                    <p>Program Studi </p>
+                    <p>Program Studi {{ $m->prodi }}</p>
             </div>
         </aside>
+    @endforeach
     </div>
 
     <div class="flex justify-between items-center mb-6">
@@ -61,7 +63,7 @@
         
         <!-- Tabel Data Persetujuan -->
         <div class="my-5 bg-white shadow-md rounded-lg overflow-hidden">
-            <table id="Mahasiswa" class="sans w-full border-collapse" id="mahasiswa" class="w-full bg-white rounded-lg shadow-md border-collapse">
+            <table id="Mahasiswa" class="w-full bg-white rounded-lg shadow-md border-collapse">
                     <thead>
                         <tr class="text-[#264A5D] text-center" style="background-color: #ECEFF6;">
                             <th class="py-3 px-4 border">No</th>
@@ -73,17 +75,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                            <tr tr class="border-b 'bg-[#ECEFF6]' : '' }}">
-                                <td class="py-3 px-4 text-center border"></td>
-                                <td class="py-3 px-4 border">semester</td>
-                                <td class="py-3 px-4 border">tahun akademik</td>
-                                <td class="py-3 px-4 text-center border">
-                                        <a href="/view-irs/" target="_blank" class="text-blue-500">Lihat IRS</a>
-                                    </td>
-                                </td>
-                                <td class="py-3 px-4 text-center border">status</td>
-                                <td class="py-3 px-4 text-center border"></td>
-                            </tr>
+                    @foreach ($mahasiswa as $m)
+                        <tr class="border-b {{ $loop->iteration % 2 == 0 ? 'bg-[#ECEFF6]' : '' }}">
+                            <td class="py-3 px-4 text-center border">{{ $loop->iteration }}</td>
+                            <td class="py-3 px-4 border">Semester {{ $m->semester_berjalan }}</td>
+                            <td class="py-3 px-4 border">{{ $m->tahun_akademik }}</td>
+                            <td class="py-3 px-4 text-center border">
+                                <a href="{{ route('halamanIRS', ['id' => $m->id]) }}" target="_blank" class="text-blue-500">Lihat IRS</a>
+                            </td>
+                            <td class="py-3 px-4 text-center border">status</td>
+                            <td class="py-3 px-4 text-center border"></td>
+                        </tr>
+                    @endforeach
                         </div>
                     </tbody>
                 </table>

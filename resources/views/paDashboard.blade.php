@@ -11,12 +11,20 @@
 
     {{-- Main Content --}}
     <div id="main-content" class="flex-1 p-8 bg-white min-h-screen ml-[340px]">
-        <div class="flex flex-col items-start space-y-8">
-            <!-- Header Daftar Mahasiswa -->
-            <h1 class="text-3xl font-bold text-[#264A5D] mb-8">Dashboard Pembimbing Akademik</h1>
+        <!-- Header Daftar Mahasiswa -->
+        <div class="flex justify-between items-center mb-8">
+            <!-- Judul -->
+            <h1 class="text-3xl font-bold text-[#264A5D]">Dashboard Pembimbing Akademik</h1>
+            <!-- Tombol Logout -->
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="text-red-500 font-bold bg-white py-2 px-4 rounded-full shadow hover:bg-red-100">
+                    LOGOUT
+                </button>
+            </form>
         </div>
-        <div class="flex justify-between items-start mb-8">
-            <div class="w-full">
+
+        <div class="w-full">
                 <!-- Header -->
                 <header class="bg-blue-500 text-white py-2 px-4 rounded-lg focus:outline-none shadow w-full mb-4" style="background-color: #4D8CC4;">
                     <div class="container mx-auto px-6 py-4 flex justify-between items-center">
