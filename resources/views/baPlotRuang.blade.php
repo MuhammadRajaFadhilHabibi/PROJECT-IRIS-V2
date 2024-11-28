@@ -36,7 +36,7 @@
                     </div>
 
                     {{-- Input Pencarian --}}
-                    <input id="searchRuang" type="text" placeholder="Cari Ruang" class="bg-gray-100 dark:bg-gray-700 rounded-lg px-4 py-2 w-1/4">
+                    <input id="searchRuang" type="text" placeholder="Cari Ruang" class="bg-gray-100 border border-black rounded-lg px-4 py-2 w-1/4">
                 </div>
 
                 {{-- Tabel Plot Ruang --}}
@@ -77,6 +77,7 @@
                                     @csrf
                                     @method('DELETE')
                                 </form>
+                                
                             </td>
                         </tr>
                         @endforeach
@@ -88,42 +89,52 @@
 
     {{-- DataTables Script --}}
     <script>
-        $(document).ready( function () {
+        $(document).ready(function () {
             var tableRuang = $('#plotRuang').DataTable({
                 pageLength: 10,
-                "columnDefs": [
-                    { className: "dt-head-center", "targets": [0, 1, 2, 3, 4, 5, 6, 7] },
-                    { className: "dt-body-center", "targets": [0, 1, 2, 3, 4, 5, 6, 7] }
-                ],
+                dom: '<"flex justify-between items-center mb-4"l>rt<"flex justify-between"ip>', // Kontrol elemen UI
+                language: {
+                    lengthMenu: "Tampilkan _MENU_ data per halaman",
+                    search: "", // Hilangkan label "Search:"
+                },
+                ordering: false,
+                columnDefs: [
+                    { className: "dt-head-center", targets: [0, 1, 2, 3, 4, 5, 6, 7] },
+                    { className: "dt-body-center", targets: [0, 1, 2, 3, 4, 5, 6, 7] }
+                ]
             });
-
-            $('#searchRuang').on('keyup', function() {
+        
+            // Pencarian
+            $('#searchRuang').on('keyup', function () {
                 tableRuang.search($(this).val()).draw();
             });
-
-            // Dropdown menu
+        
+            // Dropdown Pilihan Program Studi
             $('#dropdownProdi a').click(function (e) {
                 e.preventDefault();
                 var prodi = $(this).data('prodi'); 
-
+        
+                // Perbarui teks tombol dropdown
                 $('#dropdownDefaultButton').text(prodi);
                 $('#dropdownDefaultButton').append(`
                     <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
                     </svg>
                 `);
-
+        
+                // Close dropdown
                 const dropdownButton = document.getElementById('dropdownDefaultButton');
                 dropdownButton.click();
-
-                // Send AJAX request to controller
+        
+                // Kirim permintaan AJAX ke controller
                 $.ajax({
                     url: '/prodi',
                     method: 'GET',
                     data: { prodi: prodi },
                     success: function (response) {
                         tableRuang.clear().draw();
-
+        
+                        // Tambahkan data baru ke tabel
                         response.data.forEach(function (ruang, index) {
                             tableRuang.row.add([
                                 index + 1, 
@@ -133,10 +144,14 @@
                                 ruang.fungsi,
                                 ruang.kapasitas,
                                 `<span class="${
-                                    ruang.status == 'Pending' ? 'bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full' :
-                                    ruang.status == 'Disetujui' ? 'bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full' : 'bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full'
+                                    ruang.status == 'Pending' ? ' text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full' :
+                                    ruang.status == 'Disetujui' ? ' text-Black-800-bold text-xs font-medium me-2 px-2.5 py-0.5 rounded-full' : 'bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full'
                                 }">${ruang.status}</span>`,
-                                `<button type="button" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg px-3 py-2 text-xs font-medium text-center rounded-lg delete-btn" data-id="${ruang.id}">
+                                `<button type="button" 
+                                        class="text-white bg-red-600 hover:bg-red-700  focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg px-3 py-2 text-xs font-medium text-center rounded-lg delete-btn" 
+                                        data-id="${ruang.id}" 
+                                        data-noruang="${ruang.noruang}" 
+                                        data-blokgedung="${ruang.blokgedung}">
                                     Delete
                                 </button>
                                 <form id="delete-form-${ruang.id}" action="plotruang/${ruang.id}" method="POST" style="display: none;">
@@ -151,25 +166,57 @@
                     }
                 });
             });
+        
+           // Event Delegation untuk Delete
+$(document).on('click', '.delete-btn', function () {
+    var id = $(this).data('id');
+    var noruang = $(this).data('noruang');
+    var blokgedung = $(this).data('blokgedung');
 
-            // Event delegation for delete confirmation
-            $(document).on('click', '.delete-btn', function() {
-                var ruangId = $(this).data('id');
-                Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Data ini tidak bisa dikembalikan!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Ya, hapus!',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $('#delete-form-' + ruangId).submit();
-                    }
-                });
+    Swal.fire({
+        title: 'Konfirmasi Hapus',
+        html: `<p>Apakah Anda yakin ingin menghapus ruangan ini?</p>
+               <p><strong>No Ruang:</strong> ${noruang}</p>
+               <p><strong>Blok Gedung:</strong> ${blokgedung}</p>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Lakukan penghapusan menggunakan AJAX
+            $.ajax({
+                url: `/plotruang/${id}`,
+                method: 'DELETE',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    // Hapus baris yang sesuai dari DataTable
+                    tableRuang.row($(`button[data-id="${id}"]`).closest('tr')).remove().draw();
+
+                    // Menampilkan pesan sukses
+                    Swal.fire(
+                        'Dihapus!',
+                        'Ruang telah dihapus.',
+                        'success'
+                    );
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire(
+                        'Gagal!',
+                        'Terjadi kesalahan saat menghapus ruang.',
+                        'error'
+                    );
+                }
             });
+        }
+    });
+});
+
         });
-    </script>
+        </script>
+        
 @endsection

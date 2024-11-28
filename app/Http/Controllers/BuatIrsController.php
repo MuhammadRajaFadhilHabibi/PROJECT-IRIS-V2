@@ -15,12 +15,12 @@ class BuatIrsController extends Controller
 {
     public function index()
     {
-        
+
         $user = auth()->user();
         $email = $user->email;
         $data = Jadwal::select('kodemk')->where('prodi', $user->prodi)->groupBy('kodemk')->get();
         //from kodemk get the name of the matakuliah
-        
+        $matakuliah = Matakuliah::all();
         $jamend = [
             "" => '',
             1 => '07.50',
@@ -62,16 +62,16 @@ class BuatIrsController extends Controller
             4 => 'Kamis',
             5 => 'Jumat',
         ];
-        
-        foreach($data as $d){
+
+        foreach ($data as $d) {
             $d->matakuliah = Matakuliah::where('kodemk', $d->kodemk)->first()->nama;
             $d->sks = Matakuliah::where('kodemk', $d->kodemk)->first()->sks;
             $d->kelas = Jadwal::where('kodemk', $d->kodemk)->get();
             $d->semester = Matakuliah::where('kodemk', $d->kodemk)->first()->plotsemester;
-            foreach($d->kelas as $k){
+            foreach ($d->kelas as $k) {
                 $k->isselected = Irstest::where('email', $email)->where('kodejadwal', $k->id)->where('kodemk', $d->kodemk)->first() ? true : false;
                 $k->hari = $day[$k->hari];
-                $k->jam = $jamstart[$k->jammulai] . ' - ' . $jamend[$k->jamselesai]; 
+                $k->jam = $jamstart[$k->jammulai] . ' - ' . $jamend[$k->jamselesai];
             }
 
         }
@@ -79,7 +79,7 @@ class BuatIrsController extends Controller
         //count the total sks where email = data[email]
         $picked = Irstest::where('email', $email)->get();
         $total = 0;
-        foreach($picked as $p){
+        foreach ($picked as $p) {
             $total += Matakuliah::where('kodemk', $p->kodemk)->first()->sks;
         }
 
@@ -87,18 +87,18 @@ class BuatIrsController extends Controller
         // dd($data);
         //and prodi = Informatika
         $dataruang = Ruang::where('status', 'Disetujui')->where('prodi', 'Informatika')->get();
-        return view('mhsBuatIrs', compact('data','email','total'));
+        return view('mhsBuatIrs', compact('data', 'email', 'total', 'matakuliah'));
     }
 
     public function index2()
     {
         // Retrieve the list of students who have pending IRS entries
         $data = Irstest::select('irs_test.email', 'mahasiswa.nim', 'mahasiswa.nama', DB::raw('SUM(mata_kuliah.sks) as total_sks'))
-        ->join('mata_kuliah', 'irs_test.kodemk', '=', 'mata_kuliah.kodemk') // Join with Matakuliah to get SKS
-        ->join('mahasiswa', 'irs_test.email', '=', 'mahasiswa.email')     // Join with Mahasiswa to get NIM and nama
-        ->where('irs_test.status', 'Pending')                            // Filter by status Pending
-        ->groupBy('irs_test.email', 'mahasiswa.nim', 'mahasiswa.nama')    // Group by email, NIM, and nama
-        ->get();
+            ->join('mata_kuliah', 'irs_test.kodemk', '=', 'mata_kuliah.kodemk') // Join with Matakuliah to get SKS
+            ->join('mahasiswa', 'irs_test.email', '=', 'mahasiswa.email')     // Join with Mahasiswa to get NIM and nama
+            ->where('irs_test.status', 'Pending')                            // Filter by status Pending
+            ->groupBy('irs_test.email', 'mahasiswa.nim', 'mahasiswa.nama')    // Group by email, NIM, and nama
+            ->get();
 
         // dd($data);
         // Loop through the result to check if all jadwal for the student are 'Pending'
@@ -110,12 +110,13 @@ class BuatIrsController extends Controller
         }
 
         // Pass the data to the view
-        return view('paAjuanIrs', compact('data'));
+        return view('paAjuanIrs', compact('data', ));
     }
 
 
-    public function createIrs(Request $request) {
-        $request -> validate([
+    public function createIrs(Request $request)
+    {
+        $request->validate([
             'email' => 'required',
             'kodejadwal' => 'required',
             'kodemk' => 'required'
@@ -127,20 +128,20 @@ class BuatIrsController extends Controller
         $smtMatakuliah = Matakuliah::where('kodemk', $request->kodemk)->first()->plotsemester;
         //check is empty query if yes fill with S
         $nilaiKhs = Khs::where('nim', $Mahasiswa->nim)->where('kode', $request->kodemk)->first() ? Khs::where('nim', $Mahasiswa->nim)->where('kode', $request->kodemk)->first()->nilai : 'S';
-        
+
         // return response()->json(['data' => $nilaiKhs]);
 
-        if($smtMahasiswa > $smtMatakuliah){
-            if($nilaiKhs == 'D' || $nilaiKhs == 'E'){
+        if ($smtMahasiswa > $smtMatakuliah) {
+            if ($nilaiKhs == 'D' || $nilaiKhs == 'E') {
                 $prioritas = 3;
-            }else if($nilaiKhs == 'A'|| $nilaiKhs == 'C' || $nilaiKhs == 'B'){
+            } else if ($nilaiKhs == 'A' || $nilaiKhs == 'C' || $nilaiKhs == 'B') {
                 $prioritas = 2;
-            }else{
+            } else {
                 $prioritas = 4;
             }
-        }else if($smtMahasiswa == $smtMatakuliah){
+        } else if ($smtMahasiswa == $smtMatakuliah) {
             $prioritas = 5;
-        }else{
+        } else {
             $prioritas = 1;
         }
 
@@ -156,30 +157,30 @@ class BuatIrsController extends Controller
 
         // return response()->json(['data' => $data]);
 
-        
+
         //check if the email and kodemk already exist in the database
         $check = Irstest::where('email', $data['email'])->where('kodemk', $data['kodemk'])->first();
-        if($check) {
+        if ($check) {
             $check->update($data);
-        }else{
+        } else {
 
             Irstest::create($data);
         }
 
         //sort the irs by created at and prioritas and get the position of the data
         $row_index = Irstest::select(DB::raw('ROW_NUMBER() OVER (ORDER BY prioritas DESC,updated_at ASC) AS row_index,email'))
-        ->where('kodejadwal', $data['kodejadwal'])
-        ->get();
+            ->where('kodejadwal', $data['kodejadwal'])
+            ->get();
 
         $jadwal = Jadwal::where('id', $data['kodejadwal'])->first();
 
         $position = 0;
-        foreach($row_index as $r){
-            if($r->email == $data['email']){
+        foreach ($row_index as $r) {
+            if ($r->email == $data['email']) {
                 $position = $r->row_index;
             }
 
-            if($r->row_index > $jadwal->kapasitas){
+            if ($r->row_index > $jadwal->kapasitas) {
                 $delete = Irstest::where('email', $r->email)->where('kodejadwal', $data['kodejadwal'])->first();
                 $delete->delete();
             }
@@ -191,22 +192,23 @@ class BuatIrsController extends Controller
         //count the total sks where email = data[email]
         $picked = Irstest::where('email', $data['email'])->get();
         $total = 0;
-        foreach($picked as $p){
+        foreach ($picked as $p) {
             $total += Matakuliah::where('kodemk', $p->kodemk)->first()->sks;
         }
 
         $data['sks'] = $total;
         $data['position'] = $position;
-        
 
 
 
-        return response()->json(['data' => $data, 'position' => $row_index]);   
-        
+
+        return response()->json(['data' => $data, 'position' => $row_index]);
+
 
     }
 
-    public function deleteIrs(Request $request) {
+    public function deleteIrs(Request $request)
+    {
 
         $request->validate(['id' => 'required']);
 
@@ -221,21 +223,22 @@ class BuatIrsController extends Controller
         $email = $user->email;
         $picked = Irstest::where('email', $email)->get();
         $total = 0;
-        foreach($picked as $p){
+        foreach ($picked as $p) {
             $total += Matakuliah::where('kodemk', $p->kodemk)->first()->sks;
         }
 
 
-        
-        
-        return response()->json(['kodejadwal' => $kodejadwal,'sks' => $total]);
+
+
+        return response()->json(['kodejadwal' => $kodejadwal, 'sks' => $total]);
     }
 
-    public function viewIrs(Request $request) {
+    public function viewIrs(Request $request)
+    {
         $request->validate(['email' => 'required']);
-        
+
         $data = Irstest::where('email', $request->email)->get();
-    
+
         foreach ($data as $d) {
             $matkul = Matakuliah::where('kodemk', $d->kodemk)->first();
             $d->nama = $matkul ? $matkul->nama : 'N/A';
@@ -245,18 +248,18 @@ class BuatIrsController extends Controller
 
             //check position in priorty queue
             $row_index = Irstest::select(DB::raw('ROW_NUMBER() OVER (ORDER BY prioritas DESC, updated_at ASC) AS row_index,email'))
-            ->where('kodejadwal', $d->kodejadwal)
-            ->get();
+                ->where('kodejadwal', $d->kodejadwal)
+                ->get();
             $position = 0;
-            foreach($row_index as $r){
-                if($r->email == $request->email){
+            foreach ($row_index as $r) {
+                if ($r->email == $request->email) {
                     $position = $r->row_index;
                 }
             }
             $d->position = $position;
 
         }
-    
+
         return response()->json($data);
     }
 
@@ -286,5 +289,25 @@ class BuatIrsController extends Controller
 
         return response()->json(['message' => 'Jadwal has been rejected for ' . $request->email]);
     }
-    
+
+    public function BuatIrsController()
+    {
+        // Get the authenticated user
+        $user = auth()->user();
+
+        // Access user name
+        $userName = $user->name;
+        $status = $user->status;
+        // $ipk = Mahasiswa::where('email', $user->email)->first()->ipk;
+        // $semester_berjalan = Mahasiswa::where('email', $user->email)->first()->semester_berjalan;
+
+        $data = [
+            'userName' => $userName,
+            'status' => $status,
+        ];
+
+        // Pass the user data to a view, or return a response
+        return view('mhsBuatIrs', compact('data'));
+    }
+
 }

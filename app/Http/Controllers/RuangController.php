@@ -19,14 +19,17 @@ class RuangController extends Controller
     public function index2()
     {
         //check if there is a last prodi that was edited return ruang data with the last prodi
+
+        $ruangfree = Ruang::where('prodi', 'free')->get();
+
         if(session('lastprodi')){
             $data = Ruang::where('prodi', session('lastprodi'))->get();
             $prodi = session('lastprodi');
-            return view('baPlotRuang', compact('data', 'prodi'));
+            return view('baPlotRuang', compact('data', 'prodi', 'ruangfree'));
         }else{
             $data = [];
             $prodi = '';
-            return view('baPlotRuang', compact('data', 'prodi'));
+            return view('baPlotRuang', compact('data', 'prodi', 'ruangfree'));
         }
     }
     
@@ -69,30 +72,46 @@ class RuangController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi data
-        $request->validate([
-            'noruang' => 'required',
+        // Validasi Input
+        $validated = $request->validate([
+            'noruang' => 'required|unique:ruang,noruang', // Validasi unik pada noruang
             'blokgedung' => 'required',
-            'lantai' => 'required',
+            'lantai' => 'required|integer',
             'fungsi' => 'required',
-            'kapasitas' => 'required',
+            'kapasitas' => 'required|integer',
+            'prodi' => 'required|in:Informatika,Fisika,Matematika,Statistika,Biologi', // Validasi Prodi
         ]);
-
-        // Simpan data ruang
-        $data = Ruang::create([
-            'noruang' => $request->noruang,
-            'blokgedung' => $request->blokgedung,
-            'lantai' => $request->lantai,
-            'fungsi' => $request->fungsi,
-            'kapasitas' => $request->kapasitas,
-            'status' => 'Pending',
-            'prodi' => 'Informatika',
-        ]);
-
-        // Kembalikan response JSON ke AJAX
-        return response()->json(['success' => true, 'data' => $data]);
+    
+        try {
+            // Simpan Data ke Database
+            $ruang = Ruang::create([
+                'noruang' => $validated['noruang'],
+                'blokgedung' => $validated['blokgedung'],
+                'lantai' => $validated['lantai'],
+                'fungsi' => $validated['fungsi'],
+                'kapasitas' => $validated['kapasitas'],
+                'status' => 'Pending', // Default status
+                'prodi' => $validated['prodi'], // Simpan Prodi ke kolom 'prodi'
+            ]);
+    
+            // Jika berhasil, kembalikan respons JSON
+            return response()->json([
+                'success' => true,
+                'message' => 'Ruang berhasil ditambahkan.',
+                'data' => $ruang->only(['id', 'noruang', 'blokgedung', 'lantai', 'fungsi', 'kapasitas', 'prodi', 'status']),
+            ]);
+            
+            
+    
+        } catch (\Exception $e) {
+            // Tangani Error
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menyimpan data.',
+            ], 500);
+        }
     }
-
+    
     /**
      * Display the specified resource.
      */
@@ -122,6 +141,7 @@ class RuangController extends Controller
             'lantai' => 'required',
             'fungsi' => 'required',
             'kapasitas' => 'required',
+            'prodi' => 'required|string|max:255', // Pastikan ini ada
         ]);
 
         $data = [
@@ -130,6 +150,7 @@ class RuangController extends Controller
             'lantai' => $request->lantai,
             'fungsi' => $request->fungsi,
             'kapasitas' => $request->kapasitas,
+            'prodi' => $request->prodi, // Pastikan prodi diperbarui
             'status' => 'Pending',
         ];
 
@@ -143,17 +164,11 @@ class RuangController extends Controller
     public function destroy(string $id)
     {
         Ruang::find($id)->delete();
-        return redirect()->route('plotruang')->with('success', 'Ruang berhasil dihapus');
+        return response()->json([
+            'success' => true,
+            'message' => 'Ruang berhasil dihapus'
+        ]);
     }
-
-    public function destroyruang(string $id)
-    {
-        Ruang::find($id)->delete();
-        return redirect()->route('ruang')->with('success', 'Ruang berhasil dihapus');
-    }
-
-    
-    
 
     public function plotProdi(Request $request)
     {
@@ -165,14 +180,24 @@ class RuangController extends Controller
         return response()->json(['data' => $data]);
     }
 
-    public function editProdi(string $id){
+    public function editProdi(Request $request){
 
 
-        //select data from database where id = $id and update the prodi to 'free'
-        $data = Ruang::find($id);
-        Ruang::find($id)->update(['prodi' => 'free']);
+        $request -> validate([
+            'id' => 'required',
+            'prodi' => 'required',
+        ]);
 
-        return redirect()->route('plotruang')->with('lastprodi', $data->prodi);
+        $ruang = Ruang::find($request->id);
+
+        $ruang->prodi = 'free';
+        $ruang->save();
+
+        $data = Ruang::where('prodi', $request->prodi)->get();
+
+        $noruang = $ruang->noruang;
+
+        return response()->json(['message' => 'Ruang has been plotted successfully.', 'data' => $data, 'noruang' => $noruang]);
     
     }
 
@@ -193,7 +218,25 @@ class RuangController extends Controller
 
         return response()->json(['message' => 'Status updated successfully.', 'data' => $ruang]);
     }
+
+
+    public function plotRuang(Request $request)
+    {
+        $request -> validate([
+            'id' => 'required',
+            'prodi' => 'required',
+        ]);
+
+        $ruang = Ruang::find($request->id);
+
+        $ruang->prodi = $request->prodi;
+        $ruang->save();
+
+        $data = Ruang::where('prodi', $request->prodi)->get();
+
+        return response()->json(['message' => 'Ruang has been plotted successfully.', 'data' => $data]);
+    }
+
+    
     
 }
-
-

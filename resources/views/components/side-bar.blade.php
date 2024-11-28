@@ -43,7 +43,7 @@
             @if($user->kp == 1)
                 <li class="mb-4">
                     <a href="{{ route('matakuliah') }}"
-                        class="flex items-center w-full text-gray-700 bg-gray-300 rounded-lg p-3">
+                    class="flex items-center w-full text-gray-700 bg-white rounded-lg p-3 hover:bg-gray-200">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" viewBox="0 0 24 24"
                             fill="currentColor">
                             <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-10S17.523 2 12 2z" />

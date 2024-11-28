@@ -28,6 +28,7 @@ Route::get('/', function () {
 Route::get('/login', [LoginController::class, 'index'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'authenticate']);
 
+// Dashboard Role
 Route::get('dashboard', function () {
     if (auth()->user()->mhs == 1) {
         return app('App\Http\Controllers\DashboardController')->index();
@@ -64,6 +65,8 @@ Route::get('/mhsBuatIrs', function () {
 Route::get('/mhsAkademik', function () {
     return view('mhsAkademik');
 });
+
+Route::get('/mhsBuatIrs', [BuatIrsController::class, 'index'])->name('mhsBuatIrs');
 
 Route::get('/mhsAkademik', [AkademikController::class, 'index'])->name('mhsAkademik');
 
@@ -108,7 +111,7 @@ Route::get('mhsRegistrasi', function () {
 })->name('mhsRegistrasi');
 
 
-//Ruang
+//Ruang --Bagian Akademik
 Route::resource('/ruang', RuangController::class)->names([
     'index' => 'ruang',
 ]);
@@ -118,6 +121,9 @@ Route::get('/prodi', [RuangController::class, 'plotProdi']);
 
 Route::get('/ajuanRuang', [RuangController::class, 'index3'])->name('ajuanruang');
 Route::post('/ruang/{id}/update-status', [RuangController::class, 'updateStatus'])->name('ruang.updateStatus');
+
+Route::post('/update-status-ruang/{id}', [RuangController::class, 'updateStatus'])->name('update.status');
+
 
 
 //Jadwal
@@ -214,10 +220,12 @@ Route::post('/ruang', [RuangController::class, 'store'])->name('ruang.store');
 
 // Dashboard PA
 
+
 // Ajuan PA
 Route::get('/paAjuanIRS', [IrsController::class, 'getMahasiswa'])->name('paAjuanIRS');
 Route::get('/paAjuanIRS/{id}', [IRSController::class, 'show'])->name('paAjuanIRS');
 Route::get('/mahasiswa/{id}', [IrsController::class, 'show'])->name('mahasiswa.show');
+
 
 // Route digital signature
 Route::get('/digital-signature/{irs_id}/generate', [DigitalSignatureController::class, 'generate']);
